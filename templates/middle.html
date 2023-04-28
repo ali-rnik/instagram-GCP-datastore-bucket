@@ -1,0 +1,9 @@
+{% if not userinfo %}
+    <div class="container" aria-hidden="true">
+        <p> not logged in </p>
+    </div>
+{% else %}
+    <div class="container-fluid" aria-hidden="true">
+        <p>logged in!</p>
+    </div>
+{% endif %}

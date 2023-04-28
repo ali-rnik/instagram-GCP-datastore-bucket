@@ -1,0 +1,40 @@
+<div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+        <a href="/"
+           class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+            <svg class="bi me-2" width="40" height="32">
+                <use xlink:href="#bootstrap" />
+            </svg>
+            <span class="fs-4">MastodanGram</span>
+        </a>
+        <ul class="nav nav-pills">
+            {%if userinfo%}
+            <li class="nav-item">
+				<a class="nav-link"> Hello {{ userinfo["email"] }} </a>
+			</li>
+            <li class="nav-item">
+				<img src="data:image/gif;base64,{{userinfo["profile_photo"]}}">
+			</li>
+            <li class="nav-item">
+                <a class="nav-link" href="/followers/{{userinfo["email"]}}"> {{userinfo["followers"]|length}} Followers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/following/{{userinfo["email"]}}> {{userinfo["following"]|length}} Following</a>
+            </li>
+            {%endif%}
+
+            <li class="nav-item" hidden="true" id="sign-out">
+                <a class="nav-link active" href="/"> Sign-out </a>
+
+            </li>
+
+            <li class="nav-item" hidden="false" id="popup-firebase">
+                <a href="#"
+                   onclick="makeVis()"
+                   class="nav-link active"
+                   aria-current="page">Login/SignUp</a>
+            </li>
+			<div id="firebase-auth-container" hidden="true"></div>
+        </ul>
+    </header>
+</div>
