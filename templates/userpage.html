@@ -1,0 +1,22 @@
+{% if userpage %}
+    <div class="container pd-2">
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link">Hello {{ userpage["email"] }}</a>
+            </li>
+            <li class="nav-item">
+                <img src="data:image/gif;base64,{{ userpage["profile_photo"] }}"
+                     alt="mdo"
+                     class="rounded-circle"
+                     width="50"
+                     height="50">
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/followers/{{ userpage["email"] }}">{{ userpage["followers"]|length }} Followers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/following/{{ userpage["email"] }}">{{ userpage["following"]|length }} Following</a>
+            </li>
+        </ul>
+    </div>
+{% endif %}

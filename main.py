@@ -51,13 +51,22 @@ def flash_redirect(message, path):
     return redirect(path)
 
 
+def replace_address_with_photo(data):
+    for row in data:
+        if row.get("profile_photo"):
+            row["profile_photo"] = download_blob(row["profile_photo"])
+        if row.get("post_photo"):
+            row["post_photo"] = download_blob(row["post_photo"])
+    return data
+
+
 def retrieve_row(kind, name):
     key = datastore_client.key(kind, name)
     result = datastore_client.get(key)
     if result == None:
         return None
 
-    if result.get("profile_photo") != None:
+    if result.get("profile_photo"):
         result["profile_photo"] = download_blob(result["profile_photo"])
 
     return result.copy()
@@ -75,6 +84,7 @@ def upload_blob(address, content):
     blob = bucket.blob(address)
     blob.upload_from_string(content)
 
+
 def download_blob(address):
     bucket = storage_client.bucket(PROJECT_STORAGE_BUCKET)
     blob = bucket.blob(address)
@@ -91,7 +101,7 @@ def add_user_if_not_added(email):
 
     with open("default_photo.jpg", mode="rb") as file:
         content = base64.b64encode(file.read()).decode("utf-8")
-    
+
     upload_blob(address, content)
     create_row(
         "user",
@@ -105,7 +115,9 @@ def add_user_if_not_added(email):
         },
     )
 
-    return content
+    result = retrieve_row("user", email)
+
+    return result
 
 
 def get_session_info():
@@ -126,17 +138,81 @@ def get_session_info():
     return None
 
 
+def query_result(key, comp, val, kind):
+    if key == "" or comp == "" or kind == "":
+        return [None]
+    query = datastore_client.query(kind=kind)
+    query.add_filter(key, comp, val)
+    fetched = query.fetch()
+    if fetched == None or fetched == []:
+        return [None]
+
+    result = list(fetched)
+
+    if result == []:
+        return [None]
+    result_list = []
+    for item in result:
+        result_list.append(item.copy())
+
+    return result_list
+
+
+@app.route("/search/<searchtype>/<userkey>/", methods=["POST", "GET"])
+def users_list(searchtype, userkey):
+    userinfo = get_session_info()
+    if userinfo == None:
+        return flash_redirect("You should first login to access this page", "/")
+
+    if request.method == "POST":
+        start_char = request.form["search_user"]
+        if start_char == "" or start_char == None:
+            return flash_redirect("No User found for this query", "/")
+
+        if searchtype == "freetype":
+            query = datastore_client.query(kind="user")
+            query.add_filter("profile_name", ">=", start_char[0])
+            query.add_filter("profile_name", "<", chr(ord(start_char[0]) + 1))
+            user_list = list(query.fetch())
+            user_list = replace_address_with_photo(user_list)
+            if user_list == []:
+                return flash_redirect("No User found for this query", "/")
+
+            return render_template("index.html", userinfo=userinfo, user_list=user_list)
+
+    return flash_redirect("TODO users_list", "/")
+    # TODO
+    # res = retrieve_row("user", userkey)
+    # return render_template("index.html", userinfo=userinfo, )
+
+
+@app.route("/userpage/<username>", methods=["GET"])
+def userpage(username):
+    userinfo = get_session_info()
+    if userinfo == None:
+        return flash_redirect("You should first login to access this page", "/")
+
+    ownpage = False
+    if userinfo["email"] == username:
+        ownpage = True
+
+    result = retrieve_row("user", username)
+    return render_template(
+        "index.html", ownpage=ownpage, userinfo=userinfo, userpage=result
+    )
+
+
 @app.route("/error")
 def error():
     return render_template("50x.html")
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def root():
     userinfo = get_session_info()
-    
+    print(userinfo)
+
     return render_template("index.html", userinfo=userinfo)
-    
 
 
 if __name__ == "__main__":

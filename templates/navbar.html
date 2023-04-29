@@ -13,13 +13,13 @@
 				<a class="nav-link"> Hello {{ userinfo["email"] }} </a>
 			</li>
             <li class="nav-item">
-				<img src="data:image/gif;base64,{{userinfo["profile_photo"]}}">
+                <img src="data:image/gif;base64,{{ userinfo["profile_photo"] }}" alt="mdo" class="rounded-circle" width="50" height="50">
 			</li>
             <li class="nav-item">
-                <a class="nav-link" href="/followers/{{userinfo["email"]}}"> {{userinfo["followers"]|length}} Followers</a>
+                <a class="nav-link" href="/search/followers/{{userinfo["email"]}}"> {{userinfo["followers"]|length}} Followers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/following/{{userinfo["email"]}}> {{userinfo["following"]|length}} Following</a>
+                <a class="nav-link" href="/search/following/{{userinfo["email"]}}"> {{userinfo["following"]|length}} Following</a>
             </li>
             {%endif%}
 
