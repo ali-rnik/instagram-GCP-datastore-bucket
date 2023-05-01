@@ -8,33 +8,40 @@
             <span class="fs-4">MastodanGram</span>
         </a>
         <ul class="nav nav-pills">
-            {%if userinfo%}
-            <li class="nav-item">
-				<a class="nav-link"> Hello {{ userinfo["email"] }} </a>
-			</li>
-            <li class="nav-item">
-                <img src="data:image/gif;base64,{{ userinfo["profile_photo"] }}" alt="mdo" class="rounded-circle" width="50" height="50">
-			</li>
-            <li class="nav-item">
-                <a class="nav-link" href="/search/followers/{{userinfo["email"]}}"> {{userinfo["followers"]|length}} Followers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/search/following/{{userinfo["email"]}}"> {{userinfo["following"]|length}} Following</a>
-            </li>
-            {%endif%}
-
+            {% if userinfo %}
+                <button class="btn btn-primary nav-item"
+                        type="button"
+                        onclick="location.href ='/userpage/{{userinfo["key"]}}'"> GO to My Page </button>
+                <button class="btn btn-primary nav-item"
+                        type="button"
+                        onclick="location.href ='/addpost'"> Add Post </button>
+                <li class="nav-item">
+                    <a class="nav-link">Hello {{ userinfo["key"] }}</a>
+                </li>
+                <li class="nav-item">
+                    <img src="data:image/gif;base64,{{ userinfo["profile_photo"] }}"
+                         alt="mdo"
+                         class="rounded-circle"
+                         width="50"
+                         height="50">
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/search/followers/{{ userinfo["key"] }}">{{ userinfo["followers"]|length }} Followers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/search/following/{{ userinfo["key"] }}">{{ userinfo["following"]|length }} Following</a>
+                </li>
+            {% endif %}
             <li class="nav-item" hidden="true" id="sign-out">
-                <a class="nav-link active" href="/"> Sign-out </a>
-
+                <a class="nav-link active" href="/">Sign-out</a>
             </li>
-
             <li class="nav-item" hidden="false" id="popup-firebase">
                 <a href="#"
                    onclick="makeVis()"
                    class="nav-link active"
                    aria-current="page">Login/SignUp</a>
             </li>
-			<div id="firebase-auth-container" hidden="true"></div>
+            <div id="firebase-auth-container" hidden="true"></div>
         </ul>
     </header>
 </div>

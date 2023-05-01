@@ -4,6 +4,8 @@ from google.cloud import datastore
 from google.cloud import storage
 from google.auth.transport import requests
 from flask import Flask, render_template, request, redirect, flash, make_response
+import datetime
+
 
 PROJECT_NAME = "first-project-cpa"
 PROJECT_STORAGE_BUCKET = "first-project-cpa.appspot.com"
@@ -20,8 +22,8 @@ storage_client = storage.Client()
 firebase_request_adapter = requests.Request()
 
 user_att = [
-    # key = email
-    "email",
+    # key = key
+    "key",
     "profile_name",
     "followers",
     "following",
@@ -29,6 +31,7 @@ user_att = [
 ]
 post_att = [
     # key = author+created_date
+    "key",
     "author",
     "post_photo",
     "created_date",
@@ -37,6 +40,7 @@ post_att = [
 
 comment_att = [
     # key = author+created_date+post_id
+    "key"
     "author",
     "created_date",
     "text",
@@ -80,6 +84,7 @@ def create_row(kind, name, data):
 
 
 def upload_blob(address, content):
+    content = base64.b64encode(content).decode("utf-8")
     bucket = storage_client.bucket(PROJECT_STORAGE_BUCKET)
     blob = bucket.blob(address)
     blob.upload_from_string(content)
@@ -92,32 +97,34 @@ def download_blob(address):
     return content
 
 
-def add_user_if_not_added(email):
-    address = "/profile_photos/" + email + ".jpg"
+def add_user_if_not_added(key):
+    address = "/profile_photos/" + key + ".jpg"
 
-    result = retrieve_row("user", email)
-    if result != None:
+    result = retrieve_row("user", key)
+    if result != None and result.get("key") != None:
         return result
 
     with open("default_photo.jpg", mode="rb") as file:
-        content = base64.b64encode(file.read()).decode("utf-8")
+        content = file.read()
 
     upload_blob(address, content)
     create_row(
         "user",
-        email,
+        key,
         {
-            "email": email,
-            "profile_name": email,
+            "key": key,
+            "profile_name": key,
             "following": {},
             "followers": {},
             "profile_photo": address,
         },
     )
 
-    result = retrieve_row("user", email)
-
-    return result
+    result = retrieve_row("user", key)
+    if result != None and result.get("key") != None:
+        return result
+    else:
+        return None
 
 
 def get_session_info():
@@ -138,24 +145,39 @@ def get_session_info():
     return None
 
 
-def query_result(key, comp, val, kind):
-    if key == "" or comp == "" or kind == "":
-        return [None]
-    query = datastore_client.query(kind=kind)
-    query.add_filter(key, comp, val)
-    fetched = query.fetch()
-    if fetched == None or fetched == []:
-        return [None]
+def get_user_posts(userkey):
+    posts_and_comments = {}
 
-    result = list(fetched)
+    query = datastore_client.query(kind="post")
+    query.add_filter("author", "=", userkey)
+    posts = list(query.fetch())
+    for post in posts:
+        print(post)
 
-    if result == []:
-        return [None]
-    result_list = []
-    for item in result:
-        result_list.append(item.copy())
+@app.route("/action/<actiontype>/<userkey>/", methods=["GET"])
+def action(actiontype, userkey):
+    userinfo = get_session_info()
+    if userinfo == None:
+        return flash_redirect("You should first login to access this page", "/")
 
-    return result_list
+    my_key = datastore_client.key("user", userinfo["key"])
+    my_user = datastore_client.get(my_key)
+
+    other_key = datastore_client.key("user", userkey)
+    other_user = datastore_client.get(other_key)
+
+    now_time = datetime.datetime.now().timestamp()
+    if actiontype == "follow":
+        my_user["following"][userkey] = now_time
+        other_user["followers"][userinfo["key"]] = now_time
+    if actiontype == "unfollow":
+        del my_user["following"][userkey]
+        del other_user["followers"][userinfo["key"]]
+
+    datastore_client.put(my_user)
+    datastore_client.put(other_user)
+
+    return flash_redirect(actiontype + "ed Sunccessfully", "/userpage/userkey")
 
 
 @app.route("/search/<searchtype>/<userkey>/", methods=["POST", "GET"])
@@ -180,26 +202,74 @@ def users_list(searchtype, userkey):
 
             return render_template("index.html", userinfo=userinfo, user_list=user_list)
 
+    user_list = []
+    result = retrieve_row("user", userkey)
+    list_of_follow = result[searchtype].copy()
+    print(list_of_follow)
+    if list_of_follow != {}:
+        query = datastore_client.query(kind="user")
+
+        query.add_filter("key", "IN", list_of_follow.keys())
+        user_list = list(query.fetch())
+
     return flash_redirect("TODO users_list", "/")
+
+    # query = datastore_client.query(kind="user")
+    # query.add_filter("profile_name", ">=", start_char[0])
+    # query.add_filter("profile_name", "<", chr(ord(start_char[0]) + 1))
+    # user_list = list(query.fetch())
+    # user_list = replace_address_with_photo(user_list)
     # TODO
     # res = retrieve_row("user", userkey)
     # return render_template("index.html", userinfo=userinfo, )
 
 
-@app.route("/userpage/<username>", methods=["GET"])
+@app.route("/userpage/<username>/", methods=["GET"])
 def userpage(username):
     userinfo = get_session_info()
     if userinfo == None:
         return flash_redirect("You should first login to access this page", "/")
 
     ownpage = False
-    if userinfo["email"] == username:
+    if userinfo["key"] == username:
         ownpage = True
 
     result = retrieve_row("user", username)
     return render_template(
         "index.html", ownpage=ownpage, userinfo=userinfo, userpage=result
     )
+
+
+@app.route("/addpost", methods=["GET", "POST"])
+def addpost():
+    userinfo = get_session_info()
+    if userinfo == None:
+        return flash_redirect("You should first login to access this page", "/")
+
+    if request.method == "GET":
+        return render_template(
+            "index.html", userinfo=userinfo, addpost=True
+        )
+
+    imagepost = request.files.get('imagepost')
+    caption = request.form.get("caption")
+
+    if imagepost == None or caption == None or caption == "":
+        return flash_redirect("Check All fields are correct and has value.", "/")
+
+    imagepost = request.files['imagepost'].read()
+    
+    now_time = datetime.datetime.now().timestamp()
+    bucketkey = "/posts/"+userinfo["key"]+str(now_time)
+    upload_blob(bucketkey, imagepost)
+    post_key = userinfo["key"]+str(now_time)
+    create_row("post", post_key , 
+    {"key": post_key, "author": userinfo["key"], 
+    "post_photo": bucketkey, 
+    "created_date": str(now_time),
+    "caption": caption })
+
+    return flash_redirect("Post Added successfully", "/")
 
 
 @app.route("/error")
@@ -210,8 +280,10 @@ def error():
 @app.route("/", methods=["GET"])
 def root():
     userinfo = get_session_info()
-    print(userinfo)
 
+    if userinfo != None:
+        get_user_posts(userinfo["key"])
+        
     return render_template("index.html", userinfo=userinfo)
 
 

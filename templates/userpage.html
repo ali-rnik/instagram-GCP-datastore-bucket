@@ -1,8 +1,8 @@
-{% if userpage %}
+{% if userpage and ownpage == False %}
     <div class="container pd-2">
         <ul class="nav nav-pills">
             <li class="nav-item">
-                <a class="nav-link">Hello {{ userpage["email"] }}</a>
+                <a class="nav-link">You are viewing  {{ userpage["key"] }} profile</a>
             </li>
             <li class="nav-item">
                 <img src="data:image/gif;base64,{{ userpage["profile_photo"] }}"
@@ -12,11 +12,26 @@
                      height="50">
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/followers/{{ userpage["email"] }}">{{ userpage["followers"]|length }} Followers</a>
+                <a class="nav-link" href="/followers/{{ userpage["key"] }}">{{ userpage["followers"]|length }} Followers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/following/{{ userpage["email"] }}">{{ userpage["following"]|length }} Following</a>
+                <a class="nav-link" href="/following/{{ userpage["key"] }}">{{ userpage["following"]|length }} Following</a>
             </li>
+            {% if userinfo["following"][userpage["key"]] %}
+                <li>
+                    <span class="nav-item">Click here to Unfollow :</span>
+                    <button class="btn btn-primary nav-item"
+                            type="button"
+                            onclick="location.href ='/action/unfollow/{{userpage["key"]}}'">Unfollow</button>
+                </li>
+            {% else %}
+                <li>
+                    <span class="nav-item">Click here to Follow :</span>
+                    <button class="btn btn-primary nav-item"
+                            type="button"
+                            onclick="location.href ='/action/follow/{{userpage["key"]}}'">Follow</button>
+                </li>
+            {% endif %}
         </ul>
     </div>
 {% endif %}
