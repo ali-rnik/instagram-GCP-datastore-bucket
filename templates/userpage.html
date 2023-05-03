@@ -1,37 +1,96 @@
 {% if userpage and ownpage == False %}
-    <div class="container pd-2">
-        <ul class="nav nav-pills">
-            <li class="nav-item">
+    <div class="container pd-2 w-50">
+        <div>
+            <div>
                 <a class="nav-link">You are viewing  {{ userpage["key"] }} profile</a>
-            </li>
-            <li class="nav-item">
+            </div>
+            <div class="nav-item">
                 <img src="data:image/gif;base64,{{ userpage["profile_photo"] }}"
                      alt="mdo"
                      class="rounded-circle"
                      width="50"
                      height="50">
-            </li>
-            <li class="nav-item">
+            </div>
+            <div class="nav-item">
                 <a class="nav-link" href="/followers/{{ userpage["key"] }}">{{ userpage["followers"]|length }} Followers</a>
-            </li>
-            <li class="nav-item">
+            </div>
+            <div class="nav-item">
                 <a class="nav-link" href="/following/{{ userpage["key"] }}">{{ userpage["following"]|length }} Following</a>
-            </li>
+            </div>
             {% if userinfo["following"][userpage["key"]] %}
-                <li>
+                <div>
                     <span class="nav-item">Click here to Unfollow :</span>
                     <button class="btn btn-primary nav-item"
                             type="button"
-                            onclick="location.href ='/action/unfollow/{{userpage["key"]}}'">Unfollow</button>
-                </li>
+                            onclick="location.href ='/action/unfollow/{{ userpage["key"] }}'">Unfollow</button>
+                </div>
             {% else %}
-                <li>
+                <div>
                     <span class="nav-item">Click here to Follow :</span>
                     <button class="btn btn-primary nav-item"
                             type="button"
-                            onclick="location.href ='/action/follow/{{userpage["key"]}}'">Follow</button>
-                </li>
+                            onclick="location.href ='/action/follow/{{ userpage["key"] }}'">Follow</button>
+                </div>
             {% endif %}
-        </ul>
+        </div>
+    </div>
+{% endif %}
+{% if timeline_posts %}
+    <div class="mt-5">
+        <div class="row row-cols-1">
+            {% for tp in timeline_posts %}
+                <div class="col d-flex justify-content-center">
+                    <div>
+                        <a href="#">
+                            <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
+                                 class="rounded border-primary shadow-lg p-1 m-1"
+                                 width="500"
+                                 height="500">
+                        </a>
+                        <form style="width:500px"
+                              class=""
+                              method="post"
+                              action="/addcomment/{{ userinfo["key"] }}/{{ tp[0]["key"] }}/{{ timestamp }}">
+                            <input name="addcomment"
+                                   id="addcomment"
+                                   type="search"
+                                   class="form-control"
+                                   placeholder="Write you comment ..."
+                                   aria-label="Search">
+                        </form>
+                        <div class="text-start float-start m-1 p-1 shadow-lg rounded text-wrap"
+                             style="width: 500px">
+                            <span class="text-black-50">{{ tp[0]["author"] }}:</span> <span>{{ tp[0]["caption"] }}</span>
+                        </div>
+                        {% if tp[1] %}
+                            {% for c in tp[1] %}
+                                <div class="text-start float-start m-1 p-1 shadow-lg rounded text-wrap"
+                                     style="width: 500px">
+                                    <span class="text-black-50">{{ c["author"] }}:</span> <span>{{  }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% if not posts_and_comments and not timeline_posts %}<div class="m-3 p-3 gap-3">No post Yet ... !</div>{% endif %}
+{% if posts_and_comments %}
+    <div class="container-fluid  mt-5">
+        <div class="row row-cols-3">
+            {% for pc in posts_and_comments %}
+                <div class="col">
+                    <a href="#">
+                        <img src="data:image/gif;base64,{{ pc[0]["post_photo"] }}"
+                             class=" rounded border-primary shadow-lg p-1 m-1 w-75"
+                             width="200"
+                             height="200">
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endif %}

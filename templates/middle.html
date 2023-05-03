@@ -1,20 +1,22 @@
 {% if not userinfo %}
     <div class="container" aria-hidden="true">
-        <p> not logged in </p>
+        <p>not logged in</p>
     </div>
 {% else %}
-    <div class="container-fluid" aria-hidden="true">
-        <div class="d-flex align-items-center">
-            <form class="w-100 me-3" role="search" method="post" action="/search/freetype/{{userinfo["key"]}}/">
-              <input name="search_user" id="search_user" type="search" class="form-control" placeholder="Search for a Profile name..." aria-label="Search">
-            </form>
-        </div>
+    <div class="container w-50 start-50" aria-hidden="true">
+        <form class="w-100"
+              role="search"
+              method="post"
+              action="/search/freetype/{{ userinfo["key"] }}/">
+            <input name="search_user"
+                   id="search_user"
+                   type="search"
+                   class="form-control"
+                   placeholder="Search for a Profile name..."
+                   aria-label="Search">
+        </form>
     </div>
-
     {% include "user_list.html" %}
     {% include "userpage.html" %}
     {% include "addpost.html" %}
 {% endif %}
-
-
-

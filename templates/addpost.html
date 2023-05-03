@@ -1,24 +1,30 @@
 {% if addpost %}
-    <form class="form-signin" id="addpost" method="post" action="/addpost", enctype="multipart/form-data">
-        <h1 class="h3 mb-3 font-weight-normal">Add Post</h1>
-        <div class="mb-3 input-group input-group-sm text-center">
-            <label for="imagepost" class="form-label">PostImage:</label>
-            <input type="file"
-                   class="form-control "
-                   id="imagepost"
-                   value=""
-                   name="imagepost">
-        </div>
-        <div class="mb-3 input-group input-group-sm text-center">
-            <label for="caption" class="form-label">Post Caption:</label>
-            <input type="text"
-                   class="form-control "
-                   id="caption"
-                   value=""
-                   name="caption">
-        </div>
-        <input class="float-center btn btn-warning text-center"
-               type="submit"
-               value="Launch Post">
-    </form>
+    <div class="text-center shadow-lg rounded border-dark p-3 mt-5 w-50 mx-auto gap-3">
+        <form class="form-signin"
+              id="addpost"
+              method="post"
+              action="/addpost"
+              enctype="multipart/form-data">
+            <h1 class="h3 mb-3 font-weight-normal">Add Post</h1>
+            <div class="mb-3 input-group input-group-sm text-center">
+                <label for="imagepost" class="form-label">PostImage:</label>
+                <input type="file"
+                       class="form-control "
+                       id="imagepost"
+                       value=""
+                       name="imagepost">
+            </div>
+            <div class="mb-3 input-group input-group-sm text-center">
+                <label for="caption" class="form-label">Post Caption:</label>
+                <input type="text"
+                       class="form-control "
+                       id="caption"
+                       value=""
+                       name="caption">
+            </div>
+            <input class="float-center btn btn-warning text-center"
+                   type="submit"
+                   value="Launch Post">
+        </form>
+    </div>
 {% endif %}

@@ -1,0 +1,10 @@
+- kind: post
+  properties:
+    - name: author
+    - name: created_date
+      direction: desc
+- kind: comment
+  properties:
+    - name: post_id
+    - name: created_date
+      direction: desc

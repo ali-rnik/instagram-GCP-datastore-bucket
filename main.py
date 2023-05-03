@@ -40,8 +40,7 @@ post_att = [
 
 comment_att = [
     # key = author+created_date+post_id
-    "key"
-    "author",
+    "autho" "author",
     "created_date",
     "text",
     "post_id",
@@ -145,14 +144,38 @@ def get_session_info():
     return None
 
 
-def get_user_posts(userkey):
-    posts_and_comments = {}
-
+def get_one_post(userkey, created_date):
     query = datastore_client.query(kind="post")
     query.add_filter("author", "=", userkey)
+    query.add_filter("created_date", "=", created_date)
+    post = list(query.fetch())[0]
+
+    comments = None
+    query = list(datastore_client.query(kind="comment").fetch())
+    if query != []:
+        query = datastore_client.query(kind="comment")
+        query.order = ["-created_date"]
+        query.add_filter("post_id", "=", post["key"])
+        comments = list(query.fetch())
+
+    post["post_photo"] = download_blob(post["post_photo"])
+    return (post, comments)
+
+
+def get_user_posts(users, timeline=False):
+    posts_and_comments = []
+    query = datastore_client.query(kind="post")
+    query.add_filter("author", "IN", users)
+    query.order = ["-created_date"]
     posts = list(query.fetch())
+
     for post in posts:
-        print(post)
+        posts_and_comments.append(get_one_post(post["author"], post["created_date"]))
+
+    if timeline:
+        return posts_and_comments[:50]
+    return posts_and_comments
+
 
 @app.route("/action/<actiontype>/<userkey>/", methods=["GET"])
 def action(actiontype, userkey):
@@ -177,7 +200,7 @@ def action(actiontype, userkey):
     datastore_client.put(my_user)
     datastore_client.put(other_user)
 
-    return flash_redirect(actiontype + "ed Sunccessfully", "/userpage/userkey")
+    return flash_redirect(actiontype + "ed Sunccessfully", "/")
 
 
 @app.route("/search/<searchtype>/<userkey>/", methods=["POST", "GET"])
@@ -205,7 +228,6 @@ def users_list(searchtype, userkey):
     user_list = []
     result = retrieve_row("user", userkey)
     list_of_follow = result[searchtype].copy()
-    print(list_of_follow)
     if list_of_follow != {}:
         query = datastore_client.query(kind="user")
 
@@ -234,9 +256,14 @@ def userpage(username):
     if userinfo["key"] == username:
         ownpage = True
 
+    posts_and_comments = get_user_posts([username])
     result = retrieve_row("user", username)
     return render_template(
-        "index.html", ownpage=ownpage, userinfo=userinfo, userpage=result
+        "index.html",
+        ownpage=ownpage,
+        userinfo=userinfo,
+        userpage=result,
+        posts_and_comments=posts_and_comments,
     )
 
 
@@ -244,30 +271,34 @@ def userpage(username):
 def addpost():
     userinfo = get_session_info()
     if userinfo == None:
-        return flash_redirect("You should first login to access this page", "/")
+        return flash_redirect("You should first login to access this page", "/addpost")
 
     if request.method == "GET":
-        return render_template(
-            "index.html", userinfo=userinfo, addpost=True
-        )
+        return render_template("index.html", userinfo=userinfo, addpost=True)
 
-    imagepost = request.files.get('imagepost')
+    imagepost = request.files.get("imagepost")
     caption = request.form.get("caption")
 
     if imagepost == None or caption == None or caption == "":
         return flash_redirect("Check All fields are correct and has value.", "/")
 
-    imagepost = request.files['imagepost'].read()
-    
+    imagepost = request.files["imagepost"].read()
+
     now_time = datetime.datetime.now().timestamp()
-    bucketkey = "/posts/"+userinfo["key"]+str(now_time)
+    bucketkey = "/posts/" + userinfo["key"] + str(now_time)
     upload_blob(bucketkey, imagepost)
-    post_key = userinfo["key"]+str(now_time)
-    create_row("post", post_key , 
-    {"key": post_key, "author": userinfo["key"], 
-    "post_photo": bucketkey, 
-    "created_date": str(now_time),
-    "caption": caption })
+    post_key = userinfo["key"] + str(now_time)
+    create_row(
+        "post",
+        post_key,
+        {
+            "key": post_key,
+            "author": userinfo["key"],
+            "post_photo": bucketkey,
+            "created_date": str(now_time),
+            "caption": caption,
+        },
+    )
 
     return flash_redirect("Post Added successfully", "/")
 
@@ -281,10 +312,19 @@ def error():
 def root():
     userinfo = get_session_info()
 
-    if userinfo != None:
-        get_user_posts(userinfo["key"])
-        
-    return render_template("index.html", userinfo=userinfo)
+    if type(userinfo) != type({}):
+        return render_template("index.html", userinfo=userinfo)
+
+    timeline_posts = None
+    keys = list(userinfo["following"].keys())
+    keys.append(userinfo["key"])
+    timeline_posts = get_user_posts(keys, timeline=True)
+    return render_template(
+        "index.html",
+        userinfo=userinfo,
+        timeline_posts=timeline_posts,
+        timestamp=datetime.datetime.now().timestamp(),
+    )
 
 
 if __name__ == "__main__":
