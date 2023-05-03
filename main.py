@@ -39,11 +39,12 @@ post_att = [
 ]
 
 comment_att = [
-    # key = author+created_date+post_id
-    "autho" "author",
+    # key = author+created_date+post_key
+    "key",
+    "author",
     "created_date",
     "text",
-    "post_id",
+    "post_key",
 ]
 
 att_list = {"user": user_att, "post": post_att, "comment": comment_att}
@@ -155,7 +156,7 @@ def get_one_post(userkey, created_date):
     if query != []:
         query = datastore_client.query(kind="comment")
         query.order = ["-created_date"]
-        query.add_filter("post_id", "=", post["key"])
+        query.add_filter("post_key", "=", post["key"])
         comments = list(query.fetch())
 
     post["post_photo"] = download_blob(post["post_photo"])
@@ -174,6 +175,7 @@ def get_user_posts(users, timeline=False):
 
     if timeline:
         return posts_and_comments[:50]
+
     return posts_and_comments
 
 
@@ -267,6 +269,31 @@ def userpage(username):
     )
 
 
+@app.route("/addcomment/<user>/<post_key>/<created_time>/", methods=["POST"])
+def addcomment(user, post_key, created_time):
+    userinfo = get_session_info()
+    if userinfo == None:
+        return flash_redirect("You should first login to access this page", "/")
+
+    text = request.form.get("addcomment")
+    if text == None or len(text) <= 0 or len(text) > 200:
+        return flash_redirect("Your comment does not follows the rules!", "/")
+
+    key = user + post_key + created_time
+    create_row(
+        "comment",
+        key,
+        {
+            "key": key,
+            "created_date": created_time,
+            "text": text,
+            "author": user,
+            "post_key": post_key,
+        },
+    )
+    return flash_redirect("Comment added successfully.", "/")
+
+
 @app.route("/addpost", methods=["GET", "POST"])
 def addpost():
     userinfo = get_session_info()
@@ -319,6 +346,7 @@ def root():
     keys = list(userinfo["following"].keys())
     keys.append(userinfo["key"])
     timeline_posts = get_user_posts(keys, timeline=True)
+
     return render_template(
         "index.html",
         userinfo=userinfo,
