@@ -44,22 +44,23 @@
                 <div class="col pt-3">
                     <div class="text-start fs-4 border text-white bg-black rounded "
                          style="width:500px">Posted By {{ tp[0]["author"] }}</div>
-                    <a href="/singlepost/{{ tp[0]["author"] }}/{{ tp[0]["created_date"] }}">
-                        <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
-                             class="rounded border-primary shadow-lg"
-                             height="500px"
-                             width="500px">
-                    </a>
+                    <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
+                         class="rounded border-primary shadow-lg"
+                         height="500px"
+                         width="500px">
                 </div>
                 <div class="col">
                     <form style="width:500px"
                           method="post"
                           action="/addcomment/{{ userinfo["key"] }}/{{ tp[0]["key"] }}/{{ timestamp }}/">
-                        <input name="addcomment"
-                               id="addcomment"
-                               type="text"
-                               class="form-control"
-                               placeholder="Write you comment ...">
+                        <div class="input-group">
+                            <input name="addcomment"
+                                   id="addcomment"
+                                   type="text"
+                                   class="form-control"
+                                   placeholder="Write you comment ...">
+                            <button class="btn btn-outline-secondary" type="submit">Button</button>
+                        </div>
                     </form>
                 </div>
                 <div class="col text-start m-1 p-1 shadow-lg rounded text-wrap">
@@ -87,11 +88,6 @@
             {% endfor %}
         </div>
     </div>
-{% endif %}
-{% if userpage %} 
-    {% if posts_and_comments|length == 0 and not timeline_posts%}
-        <div class="m-3 p-3 gap-3">No post Yet ... !</div>
-    {% endif %}
 {% endif %}
 {% if posts_and_comments %}
     <div class="container text-center" style="width:900px">

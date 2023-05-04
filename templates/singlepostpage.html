@@ -16,11 +16,14 @@
                     <form style="width:500px"
                           method="post"
                           action="/addcomment/{{ userinfo["key"] }}/{{ tp[0]["key"] }}/{{ timestamp }}/">
-                        <input name="addcomment"
-                               id="addcomment"
-                               type="text"
-                               class="form-control"
-                               placeholder="Write you comment ...">
+                        <div class="input-group">
+                            <input name="addcomment"
+                                   id="addcomment"
+                                   type="text"
+                                   class="form-control"
+                                   placeholder="Write you comment ...">
+                            <button class="btn btn-outline-secondary" type="submit">Button</button>
+                        </div>
                     </form>
                 </div>
                 <div class="col text-start m-1 p-1 shadow-lg rounded text-wrap">

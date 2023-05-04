@@ -227,6 +227,9 @@ def users_list(searchtype, userkey):
 
             return render_template("index.html", userinfo=userinfo, user_list=user_list)
 
+    if searchtype == "freetype":
+        return redirect("/")
+
     user_list = []
     user_list_sorted = []
     result = retrieve_row("user", userkey)

@@ -1,7 +1,7 @@
 {% if user_list %}
-    <div class="container mt-3 pd-2 w-50 start-50 gap-3">
-        {% if list_type %}
-            <div class="shadow-lg">
+    <div class="container p-4 text-center" style="width:900px">
+        <div class=" border fs-5 row row-cols-1 m-1 p-1 d-flex justify-content-center">
+            {% if list_type %}
                 {% if list_type == "followers" %}
                     These People Are Following {{ user }}.
                 {% else %}
@@ -10,31 +10,33 @@
             {% else %}
                 Search Result
             {% endif %}
+            <div class="row row-cols-1 m-1 p-1 d-flex justify-content-center">
+                {% for user in user_list %}
+                    <ul class="border nav nav-pills m-1 p-1 nav-justified mt-3">
+                        <li class="nav-item">
+                            <img src="data:image/gif;base64,{{ user["profile_photo"] }}"
+                                 alt="img"
+                                 class="rounded-circle"
+                                 width="50"
+                                 height="50">
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/userpage/{{ user["key"] }}">{{ user["key"] }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/search/followers/{{ user["key"] }}" class="nav-link">{{ user["followers"]|length }} Followers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/search/following/{{ user["key"] }}" class="nav-link">{{ user["following"]|length }} Following</a>
+                        </li>
+                    </ul>
+                {% endfor %}
+            </div>
         </div>
-        {% for user in user_list %}
-            <ul class="nav nav-pills justify-content-center  nav-justified mt-3">
-                <li class="nav-item">
-                    <img src="data:image/gif;base64,{{ user["profile_photo"] }}"
-                         alt="img"
-                         class="rounded-circle"
-                         width="50"
-                         height="50">
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/userpage/{{ user["key"] }}">{{ user["key"] }}</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/search/followers/{{ user["key"] }}" class="nav-link">{{ user["followers"]|length }} Followers</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/search/following/{{ user["key"] }}" class="nav-link">{{ user["following"]|length }} Following</a>
-                </li>
-            </ul>
-        {% endfor %}
     </div>
 {% endif %}
 {% if list_type and not user_list %}
-    <div class="container mt-3 pd-2 w-50 start-50 gap-3">
+    <div class="container p-4 text-center" style="width:800px">
         {% if list_type == "followers" %}
             <div>No one following {{ user }}.</div>
         {% else %}
