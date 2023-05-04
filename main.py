@@ -5,7 +5,7 @@ from google.cloud import storage
 from google.auth.transport import requests
 from flask import Flask, render_template, request, redirect, flash, make_response
 import datetime
-
+import collections
 
 PROJECT_NAME = "first-project-cpa"
 PROJECT_STORAGE_BUCKET = "first-project-cpa.appspot.com"
@@ -228,21 +228,26 @@ def users_list(searchtype, userkey):
             return render_template("index.html", userinfo=userinfo, user_list=user_list)
 
     user_list = []
+    user_list_sorted = []
     result = retrieve_row("user", userkey)
-    list_of_follow = result[searchtype].copy()
-    print(list_of_follow)
-
+    list_of_follow = result[searchtype]
+    
     if list_of_follow != {}:
+        sorted_follow = sorted(list_of_follow.items(), key=lambda x: x[1], reverse=True)
         query = datastore_client.query(kind="user")
         query.add_filter("key", "IN", list(list_of_follow.keys()))
         user_list = list(query.fetch())
-        user_list = replace_address_with_photo(user_list)
+        
+        for item in sorted_follow:
+            el = [x for x in user_list if x["key"] == item[0]][0]
+            user_list_sorted.append(el)
+        user_list_sorted = replace_address_with_photo(user_list_sorted)
 
-    print(user_list)
+
     return render_template(
         "index.html",
         userinfo=userinfo,
-        user_list=user_list,
+        user_list=user_list_sorted,
         list_type=searchtype,
         user=userkey,
     )
