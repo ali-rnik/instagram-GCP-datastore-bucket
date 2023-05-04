@@ -1,16 +1,18 @@
 {% if user_list %}
     <div class="container mt-3 pd-2 w-50 start-50 gap-3">
         {% if list_type %}
-            {% if list_type == "followers" %}
-                <div>These People Are Following {{ user }}.</div>
+            <div class="shadow-lg">
+                {% if list_type == "followers" %}
+                    These People Are Following {{ user }}.
+                {% else %}
+                    {{ user }} is following these People.
+                {% endif %}
             {% else %}
-                <div>{{ user }} is following these People.</div>
+                Search Result
             {% endif %}
-        {% else %}
-            <div>Search Result</div>
-        {% endif %}
+        </div>
         {% for user in user_list %}
-            <ul class="nav nav-pills mt-3">
+            <ul class="nav nav-pills justify-content-center  nav-justified mt-3">
                 <li class="nav-item">
                     <img src="data:image/gif;base64,{{ user["profile_photo"] }}"
                          alt="img"

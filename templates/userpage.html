@@ -1,8 +1,8 @@
 {% if userpage and ownpage == False %}
     <div class="container pd-2 w-50">
-        <div>
+        <div class="border p-1 m-1 shadow-lg">
             <div class="p-1 m-3">
-                <a class="nav-link">You are viewing  {{ userpage["key"] }} Profile</a>
+                <a class="nav-link fs-4">You are viewing  {{ userpage["key"] }} Profile</a>
             </div>
             <div class="nav-item p-1 m-3">
                 <img src="data:image/gif;base64,{{ userpage["profile_photo"] }}"
@@ -19,10 +19,11 @@
             </div>
             {% if userinfo["following"][userpage["key"]] %}
                 <div>
-                    <span class="nav-item">Click here to Unfollow :</span>
                     <button class="btn btn-primary nav-item"
                             type="button"
-                            onclick="location.href ='/action/unfollow/{{ userpage["key"] }}'">Unfollow</button>
+                            onclick="location.href ='/action/unfollow/{{ userpage["key"] }}'">
+                        Unfollow {{ userpage["key"] }}
+                    </button>
                 </div>
             {% else %}
                 <div>
@@ -41,7 +42,7 @@
         <div class="row row-cols-1 d-flex justify-content-center">
             {% for tp in timeline_posts %}
                 <div class="col pt-3">
-                    <div class="text-start border text-white bg-dark rounded "
+                    <div class="text-start fs-4 border text-white bg-black rounded "
                          style="width:500px">Posted By {{ tp[0]["author"] }}</div>
                     <a href="/singlepost/{{ tp[0]["author"] }}/{{ tp[0]["created_date"] }}">
                         <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
@@ -82,23 +83,28 @@
                     {% endif %}
                 {% else %}
                 {% endif %}
+                <hr class="m-3 p-3">
             {% endfor %}
         </div>
     </div>
 {% endif %}
-{% if not posts_and_comments and not timeline_posts and timestamp %}
-    <div class="m-3 p-3 gap-3">No post Yet ... !</div>
+{% if userpage %} 
+    {% if posts_and_comments|length == 0 and not timeline_posts%}
+        <div class="m-3 p-3 gap-3">No post Yet ... !</div>
+    {% endif %}
 {% endif %}
 {% if posts_and_comments %}
-    <div class="container-fluid  mt-5">
+    <div class="container text-center" style="width:900px">
+        <hr>
+        <div class="m-1 p-1 ">{{ userpage["key"] }} Posts</div>
         <div class="row row-cols-3">
             {% for pc in posts_and_comments %}
                 <div class="col">
                     <a href="/singlepost/{{ pc[0]["author"] }}/{{ pc[0]["created_date"] }}">
                         <img src="data:image/gif;base64,{{ pc[0]["post_photo"] }}"
-                             class=" rounded border-primary shadow-lg p-1 m-1 w-75"
-                             width="200"
-                             height="200">
+                             class=" rounded border-primary shadow-lg p-1 m-1"
+                             width="300px"
+                             height="300px">
                     </a>
                 </div>
             {% endfor %}
