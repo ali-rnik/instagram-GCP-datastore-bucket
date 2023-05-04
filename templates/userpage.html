@@ -12,9 +12,10 @@
                      height="50">
             </div>
             <div class="nav-item p-1 m-3">
-                <a class="text-primary nav-link" href="/search/followers/{{ userpage["key"] }}">{{ userpage["followers"]|length }} Followers</a>
-
-                <a class="text-primary nav-link" href="/search/following/{{ userpage["key"] }}">{{ userpage["following"]|length }} Following</a>
+                <a class="text-primary nav-link"
+                   href="/search/followers/{{ userpage["key"] }}">{{ userpage["followers"]|length }} Followers</a>
+                <a class="text-primary nav-link"
+                   href="/search/following/{{ userpage["key"] }}">{{ userpage["following"]|length }} Following</a>
             </div>
             {% if userinfo["following"][userpage["key"]] %}
                 <div>
@@ -27,7 +28,9 @@
                 <div>
                     <button class="btn btn-primary nav-item"
                             type="button"
-                            onclick="location.href ='/action/follow/{{ userpage["key"] }}'">Follow {{ userpage["key"] }}</button>
+                            onclick="location.href ='/action/follow/{{ userpage["key"] }}'">
+                        Follow {{ userpage["key"] }}
+                    </button>
                 </div>
             {% endif %}
         </div>
@@ -38,8 +41,9 @@
         <div class="row row-cols-1 d-flex justify-content-center">
             {% for tp in timeline_posts %}
                 <div class="col pt-3">
-                    <div class="text-start border text-white bg-dark rounded " style="width:500px">Posted By {{tp[0]["author"]}} </div>
-                    <a href="/singlepost/{{tp[0]["author"]}}/{{tp[0]["created_date"]}}">
+                    <div class="text-start border text-white bg-dark rounded "
+                         style="width:500px">Posted By {{ tp[0]["author"] }}</div>
+                    <a href="/singlepost/{{ tp[0]["author"] }}/{{ tp[0]["created_date"] }}">
                         <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
                              class="rounded border-primary shadow-lg"
                              height="500px"
@@ -82,13 +86,15 @@
         </div>
     </div>
 {% endif %}
-{% if not posts_and_comments and not timeline_posts and timestamp %}<div class="m-3 p-3 gap-3">No post Yet ... !</div>{% endif %}
+{% if not posts_and_comments and not timeline_posts and timestamp %}
+    <div class="m-3 p-3 gap-3">No post Yet ... !</div>
+{% endif %}
 {% if posts_and_comments %}
     <div class="container-fluid  mt-5">
         <div class="row row-cols-3">
             {% for pc in posts_and_comments %}
                 <div class="col">
-                    <a href="/singlepost/{{pc[0]["author"]}}/{{pc[0]["created_date"]}}">
+                    <a href="/singlepost/{{ pc[0]["author"] }}/{{ pc[0]["created_date"] }}">
                         <img src="data:image/gif;base64,{{ pc[0]["post_photo"] }}"
                              class=" rounded border-primary shadow-lg p-1 m-1 w-75"
                              width="200"

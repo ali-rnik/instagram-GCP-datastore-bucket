@@ -238,9 +238,14 @@ def users_list(searchtype, userkey):
         user_list = list(query.fetch())
         user_list = replace_address_with_photo(user_list)
 
-
     print(user_list)
-    return render_template("index.html", userinfo=userinfo, user_list=user_list, list_type=searchtype, user=userkey)
+    return render_template(
+        "index.html",
+        userinfo=userinfo,
+        user_list=user_list,
+        list_type=searchtype,
+        user=userkey,
+    )
 
 
 @app.route("/userpage/<username>/", methods=["GET"])
@@ -264,7 +269,7 @@ def userpage(username):
     )
 
 
-@app.route("/addcomment/<user>/<post_key>/<created_time>", methods=["POST"])
+@app.route("/addcomment/<user>/<post_key>/<created_time>/", methods=["POST"])
 def addcomment(user, post_key, created_time):
     userinfo = get_session_info()
     if userinfo == None:
@@ -286,9 +291,11 @@ def addcomment(user, post_key, created_time):
             "post_key": post_key,
         },
     )
+    
     return flash_redirect("Comment added successfully.", "/")
+   
 
-@app.route("/singlepost/<author>/<created_date>", methods=["GET"])
+@app.route("/singlepost/<author>/<created_date>/", methods=["GET"])
 def singlepost(author, created_date):
     userinfo = get_session_info()
     if type(userinfo) != type({}):
@@ -302,7 +309,9 @@ def singlepost(author, created_date):
         userinfo=userinfo,
         timeline_posts=single_pc,
         single_page=True,
+        timestamp=datetime.datetime.now().timestamp(),
     )
+
 
 @app.route("/addpost", methods=["GET", "POST"])
 def addpost():
@@ -318,14 +327,12 @@ def addpost():
 
     if imagepost == None or caption == None or caption == "":
         return flash_redirect("Check All fields are correct and has value.", "/addpost")
-    
+
     print(str(imagepost.mimetype))
     if imagepost.mimetype != "image/jpeg" and imagepost.mimetype != "image/png":
         return flash_redirect("Only jpeg or png format allowed.", "/addpost")
 
     imagepost = request.files["imagepost"].read()
-
-  
 
     now_time = datetime.datetime.now().timestamp()
     bucketkey = "/posts/" + userinfo["key"] + str(now_time)
