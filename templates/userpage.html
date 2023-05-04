@@ -1,21 +1,20 @@
 {% if userpage and ownpage == False %}
     <div class="container pd-2 w-50">
         <div>
-            <div>
-                <a class="nav-link">You are viewing  {{ userpage["key"] }} profile</a>
+            <div class="p-1 m-3">
+                <a class="nav-link">You are viewing  {{ userpage["key"] }} Profile</a>
             </div>
-            <div class="nav-item">
+            <div class="nav-item p-1 m-3">
                 <img src="data:image/gif;base64,{{ userpage["profile_photo"] }}"
                      alt="mdo"
                      class="rounded-circle"
                      width="50"
                      height="50">
             </div>
-            <div class="nav-item">
-                <a class="nav-link" href="/followers/{{ userpage["key"] }}">{{ userpage["followers"]|length }} Followers</a>
-            </div>
-            <div class="nav-item">
-                <a class="nav-link" href="/following/{{ userpage["key"] }}">{{ userpage["following"]|length }} Following</a>
+            <div class="nav-item p-1 m-3">
+                <a class="text-primary nav-link" href="/search/followers/{{ userpage["key"] }}">{{ userpage["followers"]|length }} Followers</a>
+
+                <a class="text-primary nav-link" href="/search/following/{{ userpage["key"] }}">{{ userpage["following"]|length }} Following</a>
             </div>
             {% if userinfo["following"][userpage["key"]] %}
                 <div>
@@ -26,30 +25,28 @@
                 </div>
             {% else %}
                 <div>
-                    <span class="nav-item">Click here to Follow :</span>
                     <button class="btn btn-primary nav-item"
                             type="button"
-                            onclick="location.href ='/action/follow/{{ userpage["key"] }}'">Follow</button>
+                            onclick="location.href ='/action/follow/{{ userpage["key"] }}'">Follow {{ userpage["key"] }}</button>
                 </div>
             {% endif %}
         </div>
     </div>
 {% endif %}
 {% if timeline_posts %}
-    <div class="container">
-        {% for tp in timeline_posts %}
-            <div class="row">
-                <div class="col align-self-center">
-                    <a href="#">
+    <div class="container text-center" style="width:500px">
+        <div class="row row-cols-1 d-flex justify-content-center">
+            {% for tp in timeline_posts %}
+                <div class="col pt-3">
+                    <div class="text-start border text-white bg-dark rounded " style="width:500px">Posted By {{tp[0]["author"]}} </div>
+                    <a href="/singlepost/{{tp[0]["author"]}}/{{tp[0]["created_date"]}}">
                         <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
-                             class="rounded border-primary shadow-lg p-1 m-1"
+                             class="rounded border-primary shadow-lg"
                              height="500px"
                              width="500px">
                     </a>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col align-self-center">
+                <div class="col">
                     <form style="width:500px"
                           method="post"
                           action="/addcomment/{{ userinfo["key"] }}/{{ tp[0]["key"] }}/{{ timestamp }}/">
@@ -60,47 +57,38 @@
                                placeholder="Write you comment ...">
                     </form>
                 </div>
-            </div>
-            <div class="row">
-                <div style="width:500px"
-                     class="col  align-self-center text-start float-start m-1 p-1 shadow-lg rounded text-wrap">
+                <div class="col text-start m-1 p-1 shadow-lg rounded text-wrap">
                     <span class="text-black-50">(caption) {{ tp[0]["author"] }}</span> <span>{{ tp[0]["caption"] }}</span>
                 </div>
-            </div>
-            {% if tp[1] %}
-                {% for c in tp[1] %}
-                    <div id="{{ tp[0]["key"] }}{{ loop.index }}"
-                         class="row"
-                         {% if loop.index >= 6 %}hidden="true"{% endif %}>
-                        <div style="width:500px"
-                             class="col align-self-center text-start float-start m-1 p-1 shadow-lg rounded text-wrap">
+                {% if tp[1] %}
+                    {% for c in tp[1] %}
+                        <div id="{{ tp[0]["key"] }}{{ loop.index }}"
+                             {% if loop.index >= 6 %}hidden="true"{% endif %}
+                             class="col text-start  m-1 p-1 shadow-lg rounded text-wrap">
                             <span class="text-black-50">{{ c["author"] }}</span> <span>{{ c["text"] }}</span>
                         </div>
-                    </div>
-                {% endfor %}
-                {% if tp[1]|length >= 6 %}
-                    <div id="fire_{{ tp[0]["key"] }}" class="row">
-                        <div style="width:500px"
-                             class="col align-self-center text-start float-start m-1 p-1 shadow-lg rounded text-wrap">
+                    {% endfor %}
+                    {% if tp[1]|length >= 6 %}
+                        <div id="fire_{{ tp[0]["key"] }}"
+                             class="col justify-content-center text-start  m-1 p-1 shadow-lg rounded text-wrap">
                             <a href="#"
                                onclick="makingVis('{{ tp[0]["key"] }}'); return false;"
                                class="text-black-50">Show More Comments</a>
                         </div>
-                    </div>
+                    {% endif %}
+                {% else %}
                 {% endif %}
-            {% else %}
-            {% endif %}
+            {% endfor %}
         </div>
-    {% endfor %}
-</div>
+    </div>
 {% endif %}
-{% if not posts_and_comments and not timeline_posts %}<div class="m-3 p-3 gap-3">No post Yet ... !</div>{% endif %}
+{% if not posts_and_comments and not timeline_posts and timestamp %}<div class="m-3 p-3 gap-3">No post Yet ... !</div>{% endif %}
 {% if posts_and_comments %}
     <div class="container-fluid  mt-5">
         <div class="row row-cols-3">
             {% for pc in posts_and_comments %}
                 <div class="col">
-                    <a href="#">
+                    <a href="/singlepost/{{pc[0]["author"]}}/{{pc[0]["created_date"]}}">
                         <img src="data:image/gif;base64,{{ pc[0]["post_photo"] }}"
                              class=" rounded border-primary shadow-lg p-1 m-1 w-75"
                              width="200"

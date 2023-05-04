@@ -1,10 +1,19 @@
 {% if user_list %}
     <div class="container mt-3 pd-2 w-50 start-50 gap-3">
+        {% if list_type %}
+            {% if list_type == "followers" %}
+                <div>These People Are Following {{ user }}.</div>
+            {% else %}
+                <div>{{ user }} is following these People.</div>
+            {% endif %}
+        {% else %}
+            <div>Search Result</div>
+        {% endif %}
         {% for user in user_list %}
             <ul class="nav nav-pills mt-3">
                 <li class="nav-item">
                     <img src="data:image/gif;base64,{{ user["profile_photo"] }}"
-                         alt="mdo"
+                         alt="img"
                          class="rounded-circle"
                          width="50"
                          height="50">
@@ -13,12 +22,21 @@
                     <a class="nav-link" href="/userpage/{{ user["key"] }}">{{ user["key"] }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link">{{ user["followers"]|length }} Followers</a>
+                    <a href="/search/followers/{{ user["key"] }}" class="nav-link">{{ user["followers"]|length }} Followers</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link">{{ user["following"]|length }} Following</a>
+                    <a href="/search/following/{{ user["key"] }}" class="nav-link">{{ user["following"]|length }} Following</a>
                 </li>
             </ul>
         {% endfor %}
+    </div>
+{% endif %}
+{% if list_type and not user_list %}
+    <div class="container mt-3 pd-2 w-50 start-50 gap-3">
+        {% if list_type == "followers" %}
+            <div>No one following {{ user }}.</div>
+        {% else %}
+            <div>{{ user }} following no one.</div>
+        {% endif %}
     </div>
 {% endif %}

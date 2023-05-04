@@ -48,7 +48,7 @@ function makingVis(identi) {
 		}
 		if(inputs[i].id == ("fire_"+identi)) {
 			inputs[i].hidden = true;
-			console.log(inputs[i]+"became invis");
+			console.log(inputs[i].id+" became invis");
 		}
 	}
 	return;

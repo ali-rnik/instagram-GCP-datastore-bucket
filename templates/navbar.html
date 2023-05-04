@@ -11,10 +11,13 @@
             {% if userinfo %}
                 <button class="btn btn-primary nav-item m-1"
                         type="button"
-                        onclick="location.href ='/userpage/{{userinfo["key"]}}'"> GO to My Page </button>
+                        onclick="location.href ='/'">TimeLine</button>
                 <button class="btn btn-primary nav-item m-1"
                         type="button"
-                        onclick="location.href ='/addpost'"> Add Post </button>
+                        onclick="location.href ='/userpage/{{ userinfo["key"] }}'">ProfilePage</button>
+                <button class="btn btn-primary nav-item m-1"
+                        type="button"
+                        onclick="location.href ='/addpost'">+ Post</button>
                 <li class="nav-item">
                     <a class="nav-link">Hello {{ userinfo["key"] }}</a>
                 </li>

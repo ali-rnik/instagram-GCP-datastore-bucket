@@ -1,7 +1,7 @@
 <div class="text-center bg-warning">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            {% for message in messages %}<span class="rounded-pill">{{ message }}</span>{% endfor %}
+            {% for message in messages %}<div class="rounded-pill">{{ message }}</div>{% endfor %}
         {% endif %}
     {% endwith %}
 </div>

@@ -182,7 +182,7 @@ def get_user_posts(users, timeline=False):
 @app.route("/action/<actiontype>/<userkey>/", methods=["GET"])
 def action(actiontype, userkey):
     userinfo = get_session_info()
-    if userinfo == None:
+    if type(userinfo) != type({}):
         return flash_redirect("You should first login to access this page", "/")
 
     my_key = datastore_client.key("user", userinfo["key"])
@@ -208,7 +208,7 @@ def action(actiontype, userkey):
 @app.route("/search/<searchtype>/<userkey>/", methods=["POST", "GET"])
 def users_list(searchtype, userkey):
     userinfo = get_session_info()
-    if userinfo == None:
+    if type(userinfo) != type({}):
         return flash_redirect("You should first login to access this page", "/")
 
     if request.method == "POST":
@@ -230,28 +230,23 @@ def users_list(searchtype, userkey):
     user_list = []
     result = retrieve_row("user", userkey)
     list_of_follow = result[searchtype].copy()
+    print(list_of_follow)
+
     if list_of_follow != {}:
         query = datastore_client.query(kind="user")
-
-        query.add_filter("key", "IN", list_of_follow.keys())
+        query.add_filter("key", "IN", list(list_of_follow.keys()))
         user_list = list(query.fetch())
+        user_list = replace_address_with_photo(user_list)
 
-    return flash_redirect("TODO users_list", "/")
 
-    # query = datastore_client.query(kind="user")
-    # query.add_filter("profile_name", ">=", start_char[0])
-    # query.add_filter("profile_name", "<", chr(ord(start_char[0]) + 1))
-    # user_list = list(query.fetch())
-    # user_list = replace_address_with_photo(user_list)
-    # TODO
-    # res = retrieve_row("user", userkey)
-    # return render_template("index.html", userinfo=userinfo, )
+    print(user_list)
+    return render_template("index.html", userinfo=userinfo, user_list=user_list, list_type=searchtype, user=userkey)
 
 
 @app.route("/userpage/<username>/", methods=["GET"])
 def userpage(username):
     userinfo = get_session_info()
-    if userinfo == None:
+    if type(userinfo) != type({}):
         return flash_redirect("You should first login to access this page", "/")
 
     ownpage = False
@@ -269,7 +264,7 @@ def userpage(username):
     )
 
 
-@app.route("/addcomment/<user>/<post_key>/<created_time>/", methods=["POST"])
+@app.route("/addcomment/<user>/<post_key>/<created_time>", methods=["POST"])
 def addcomment(user, post_key, created_time):
     userinfo = get_session_info()
     if userinfo == None:
@@ -293,11 +288,26 @@ def addcomment(user, post_key, created_time):
     )
     return flash_redirect("Comment added successfully.", "/")
 
+@app.route("/singlepost/<author>/<created_date>", methods=["GET"])
+def singlepost(author, created_date):
+    userinfo = get_session_info()
+    if type(userinfo) != type({}):
+        return flash_redirect("You should first login to access this page", "/addpost")
+
+    single_pc = []
+    single_pc.append(get_one_post(author, created_date))
+
+    return render_template(
+        "index.html",
+        userinfo=userinfo,
+        timeline_posts=single_pc,
+        single_page=True,
+    )
 
 @app.route("/addpost", methods=["GET", "POST"])
 def addpost():
     userinfo = get_session_info()
-    if userinfo == None:
+    if type(userinfo) != type({}):
         return flash_redirect("You should first login to access this page", "/addpost")
 
     if request.method == "GET":
@@ -307,9 +317,15 @@ def addpost():
     caption = request.form.get("caption")
 
     if imagepost == None or caption == None or caption == "":
-        return flash_redirect("Check All fields are correct and has value.", "/")
+        return flash_redirect("Check All fields are correct and has value.", "/addpost")
+    
+    print(str(imagepost.mimetype))
+    if imagepost.mimetype != "image/jpeg" and imagepost.mimetype != "image/png":
+        return flash_redirect("Only jpeg or png format allowed.", "/addpost")
 
     imagepost = request.files["imagepost"].read()
+
+  
 
     now_time = datetime.datetime.now().timestamp()
     bucketkey = "/posts/" + userinfo["key"] + str(now_time)

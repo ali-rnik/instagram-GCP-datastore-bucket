@@ -1,0 +1,50 @@
+{% if single %}
+    <div class="container text-center" style="width:500px">
+        <div class="row row-cols-1 d-flex justify-content-center">
+            {% for tp in timeline_posts %}
+                <div class="col pt-3">
+                    <div class="text-start border text-white bg-dark rounded "
+                         style="width:500px">Posted By {{ tp[0]["author"] }}</div>
+                    <a href="#">
+                        <img src="data:image/gif;base64,{{ tp[0]["post_photo"] }}"
+                             class="rounded border-primary shadow-lg"
+                             height="500px"
+                             width="500px">
+                    </a>
+                </div>
+                <div class="col">
+                    <form style="width:500px"
+                          method="post"
+                          action="/addcomment/{{ userinfo["key"] }}/{{ tp[0]["key"] }}/{{ timestamp }}">
+                        <input name="addcomment"
+                               id="addcomment"
+                               type="text"
+                               class="form-control"
+                               placeholder="Write you comment ...">
+                    </form>
+                </div>
+                <div class="col text-start m-1 p-1 shadow-lg rounded text-wrap">
+                    <span class="text-black-50">(caption) {{ tp[0]["author"] }}</span> <span>{{ tp[0]["caption"] }}</span>
+                </div>
+                {% if tp[1] %}
+                    {% for c in tp[1] %}
+                        <div id="{{ tp[0]["key"] }}{{ loop.index }}"
+                             {% if loop.index >= 6 %}hidden="true"{% endif %}
+                             class="col text-start  m-1 p-1 shadow-lg rounded text-wrap">
+                            <span class="text-black-50">{{ c["author"] }}</span> <span>{{ c["text"] }}</span>
+                        </div>
+                    {% endfor %}
+                    {% if tp[1]|length >= 6 %}
+                        <div id="fire_{{ tp[0]["key"] }}"
+                             class="col justify-content-center text-start  m-1 p-1 shadow-lg rounded text-wrap">
+                            <a href="#"
+                               onclick="makingVis('{{ tp[0]["key"] }}'); return false;"
+                               class="text-black-50">Show More Comments</a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
