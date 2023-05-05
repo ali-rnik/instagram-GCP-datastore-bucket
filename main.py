@@ -5,7 +5,6 @@ from google.cloud import storage
 from google.auth.transport import requests
 from flask import Flask, render_template, request, redirect, flash, make_response
 import datetime
-import collections
 
 PROJECT_NAME = "first-project-cpa"
 PROJECT_STORAGE_BUCKET = "first-project-cpa.appspot.com"
@@ -333,8 +332,10 @@ def addpost():
     imagepost = request.files.get("imagepost")
     caption = request.form.get("caption")
 
-    if imagepost == None or caption == None or caption == "":
+    if imagepost == None or caption == None or caption == "" or len(caption) > 200:
         return flash_redirect("Check All fields are correct and has value.", "/addpost")
+
+ 
 
     print(str(imagepost.mimetype))
     if imagepost.mimetype != "image/jpeg" and imagepost.mimetype != "image/png":
