@@ -1,10 +1,11 @@
-- kind: post
-  properties:
-    - name: author
-    - name: created_date
-      direction: desc
-- kind: comment
-  properties:
-    - name: post_key
-    - name: created_date
-      direction: desc
+indexes:
+        - kind: post
+          properties:
+            - name: author
+            - name: created_date
+              direction: desc
+        - kind: comment
+          properties:
+            - name: post_key
+            - name: created_date
+              direction: desc
