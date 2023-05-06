@@ -5,6 +5,6 @@
       direction: desc
 - kind: comment
   properties:
-    - name: post_id
+    - name: post_key
     - name: created_date
       direction: desc
